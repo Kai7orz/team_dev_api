@@ -12,11 +12,14 @@ const (
 	metMuseumAPIBaseURL = "https://collectionapi.metmuseum.org/public/collection/v1"
 )
 
-type Artwork struct {
-	ObjectID   int    `json:"objectID"`
-	Title      string `json:"title"`
-	Culture    string `json:"culture"`
-	ArtistName string `json:"artistDisplayName"`
+// RawArtwork はMetMuseum APIから返される生のアートワークデータを表します
+type RawArtwork struct {
+	ObjectID          int    `json:"objectID"`
+	Title             string `json:"title"`
+	Culture           string `json:"culture"`
+	ArtistDisplayName string `json:"artistDisplayName"`
+	ObjectDate        string `json:"objectDate"`
+	PrimaryImage      string `json:"primaryImage"`
 	// 他にも必要なフィールドがあれば追加
 }
 
@@ -32,7 +35,7 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) GetArtworkByID(id int) (*Artwork, error) {
+func (c *Client) GetArtworkByID(id int) (*RawArtwork, error) {
 	url := fmt.Sprintf("%s/objects/%d", c.BaseURL, id)
 
 	resp, err := c.HTTPClient.Get(url)
@@ -49,10 +52,10 @@ func (c *Client) GetArtworkByID(id int) (*Artwork, error) {
 		return nil, fmt.Errorf("received non-OK HTTP status: %s", resp.Status)
 	}
 
-	var artwork Artwork
-	if err := json.NewDecoder(resp.Body).Decode(&artwork); err != nil {
+	var rawArtwork RawArtwork
+	if err := json.NewDecoder(resp.Body).Decode(&rawArtwork); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	return &artwork, nil
+	return &rawArtwork, nil
 }
