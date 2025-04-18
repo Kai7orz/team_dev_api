@@ -27,13 +27,13 @@ make fmt
 
 ## APIドキュメンテーションの生成
 エンドポイントの追加・変更時にAPIドキュメンテーションを生成・更新してください
-1. `swag` CLIのインストール
+1. `swag` CLIのインストール（初回のみ）
 
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
 ```
 
-2. go.modのパッケージをインストール
+2. go.modのパッケージをインストール（初回のみ）
 
 ```bash
 go mod tidy
