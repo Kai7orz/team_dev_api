@@ -14,7 +14,80 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/artworks/{id}": {
+            "get": {
+                "description": "Fetch artwork information from the Met Museum API by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "artworks"
+                ],
+                "summary": "Get artwork by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Artwork ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Artwork"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Artwork": {
+            "type": "object",
+            "properties": {
+                "artistDisplayName": {
+                    "type": "string"
+                },
+                "culture": {
+                    "type": "string"
+                },
+                "objectDate": {
+                    "type": "string"
+                },
+                "objectID": {
+                    "type": "integer"
+                },
+                "primaryImage": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
