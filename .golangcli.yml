@@ -1,0 +1,15 @@
+# .golangci.yml
+run:
+  timeout: 2m
+
+linters:
+  enable:
+    - govet
+    - gofmt
+    - goimports
+    - unused
+    - staticcheck
+    - errcheck
+
+issues:
+  exclude-use-default: false

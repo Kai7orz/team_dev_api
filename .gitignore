@@ -1,0 +1,29 @@
+# バイナリファイル
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# ビルド成果物
+/bin/
+/build/
+/dist/
+
+# 一時ファイルやログ
+*.log
+*.tmp
+
+# OSやエディタの設定ファイル
+.DS_Store
+.idea/
+.vscode/
+
+# モジュールキャッシュ（Goではあまり必要ないけど念のため）
+vendor/
+
+# その他
+*.toml
+docs/swagger.yaml
+docs/swagger.json
