@@ -33,7 +33,6 @@ func GetArtworkByIDHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 生のデータからモデルへの変換
 	artwork := model.Artwork{
 		ID:           rawArtwork.ObjectID,
 		Title:        rawArtwork.Title,
