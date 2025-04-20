@@ -15,15 +15,7 @@ func GetByID(id int) (*model.Artwork, bool) {
 
 	object, ok := GlobalCache.CacheMap[id]
 	if !ok {
-		emptyArtwork := &model.Artwork{
-			ID:           id,
-			Title:        nil,
-			Artist:       nil,
-			Culture:      nil,
-			ObjectDate:   nil,
-			PrimaryImage: nil,
-		}
-		return emptyArtwork, false
+		return nil, false
 	}
 	return object, true
 }
