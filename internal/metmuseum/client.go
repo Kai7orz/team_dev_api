@@ -7,8 +7,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/Kai7orz/team_dev_api/internal/model"
 )
 
 const (
@@ -39,6 +37,9 @@ func NewClient() *Client {
 }
 
 func (c *Client) GetArtworkByID(id int) (*RawArtwork, error) {
+
+	log.Println("called->", id)
+
 	url := fmt.Sprintf("%s/objects/%d", c.BaseURL, id)
 
 	resp, err := c.HTTPClient.Get(url)
@@ -61,38 +62,4 @@ func (c *Client) GetArtworkByID(id int) (*RawArtwork, error) {
 	}
 
 	return &rawArtwork, nil
-}
-
-// limit 個分のデータを返します
-func (c *Client) GetArtworks(page int) []model.Artwork {
-
-	var artworks []model.Artwork
-	id := 1
-	recordedArts := 0 //データの取得が正常に行えた作品数の記録
-	limit := 20       //20件のデータを一度のリクエストに対して返す
-
-	for recordedArts < limit {
-		rawArtwork, err := NewClient().GetArtworkByID((page-1)*limit + id)
-		if err != nil || rawArtwork.ObjectID == 0 {
-			id++
-			log.Println("error") //情報取得でエラー発生時は，次idのオブジェクトを取得する
-			continue
-		}
-
-		artwork := model.Artwork{
-			ID:           rawArtwork.ObjectID,
-			Title:        rawArtwork.Title,
-			Artist:       rawArtwork.ArtistDisplayName,
-			Culture:      rawArtwork.Culture,
-			ObjectDate:   rawArtwork.ObjectDate,
-			PrimaryImage: rawArtwork.PrimaryImage,
-		}
-
-		artworks = append(artworks, artwork)
-
-		recordedArts++
-		id++
-	}
-	return artworks
-
 }

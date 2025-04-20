@@ -11,12 +11,21 @@ import (
 
 	_ "github.com/Kai7orz/team_dev_api/docs"
 	"github.com/Kai7orz/team_dev_api/internal/handler"
+	"github.com/Kai7orz/team_dev_api/internal/worker"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
+
+	ids := make([]int, 2000)
+	for i := 0; i < 2000; i++ {
+		ids[i] = i + 1
+	}
+	worker.StartWorker(ids)
+
 	http.Handle("/swagger/", httpSwagger.WrapHandler)
 	http.HandleFunc("/ping", pingHandler)
+	http.HandleFunc("/artworks/", handler.GetArtworkByIDHandler)
 	http.HandleFunc("/artworks", handler.GetArtworksHandler)
 
 	fmt.Println("Server is running at http://localhost:8080")
