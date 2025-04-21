@@ -1,6 +1,11 @@
 package cache
 
 import (
+	"encoding/csv"
+	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/Kai7orz/team_dev_api/internal/model"
 )
 
@@ -40,6 +45,82 @@ func GetByPage(page int) []*model.Artwork {
 		}
 	}
 	return result
+}
+
+// 検索機能などにおいてnil入ったデータを扱いたくないので，それ等除外したデータを返す
+func GetAll() []*model.Artwork {
+
+	GlobalCache.Mu.RLock()
+	defer GlobalCache.Mu.RUnlock()
+
+	var result []*model.Artwork
+
+	for _, art := range GlobalCache.CacheMap {
+		if art != nil && art.Title != nil {
+			result = append(result, art)
+		}
+	}
+
+	return result
+}
+
+func ReadCsv() {
+	cwd, _ := os.Getwd()
+	file, err := os.Open(cwd + "/internal/cache/MetObjects.csv") //パス指定は要相談
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		fmt.Println("Error reading CSV data:", err)
+		return
+	}
+
+	limit := 1000 //1000件分のデータを登録
+	id := 0
+
+	//以下　今回は手動で各カラムが何番の列に対応するかを数えたが，自動化したほうがいい
+	strObjectID := 4
+	title := 9
+	artist := 18
+	culture := 10
+	objectDate := 28
+
+	for _, record := range records {
+		if id > limit {
+			break
+		}
+		if id == 0 { //csv1行目は破棄
+			id++
+			continue
+		}
+
+		objectID, _ := strconv.Atoi(record[strObjectID])
+
+		/*
+			fmt.Println("ID ", objectID)
+			fmt.Println("Title ", record[title])
+			fmt.Println("Artist ", record[artist])
+			fmt.Println("Culture ", record[culture])
+			fmt.Println("ObjectDate ", record[objectDate])
+		*/
+
+		tempObject := &model.Artwork{
+			ID:           objectID,
+			Title:        &record[title],
+			Artist:       &record[artist],
+			Culture:      &record[culture],
+			ObjectDate:   &record[objectDate],
+			PrimaryImage: nil,
+		}
+
+		Save(tempObject)
+		id++
+	}
 }
 
 // キャッシュへの保存処理

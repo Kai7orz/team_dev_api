@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/Kai7orz/team_dev_api/internal/cache"
-	"github.com/Kai7orz/team_dev_api/internal/metmuseum"
 	"github.com/Kai7orz/team_dev_api/internal/model"
 )
 
@@ -37,38 +36,39 @@ func GetArtworkByIDHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	/*
-		キャッシュ内にデータ無ければ直接たたく処理：取得不可データは，初回リクエスト時はエラー，2回目以降はID以外nilとなっているArtworkを返すようにしてる
-	*/
-	rawArtwork, err := metmuseum.NewClient().GetArtworkByID(id)
-	if err != nil || rawArtwork == nil || rawArtwork.ObjectID == 0 {
-		emptyArtwork := model.Artwork{
-			ID:           id,
-			Title:        nil,
-			Artist:       nil,
-			Culture:      nil,
-			ObjectDate:   nil,
-			PrimaryImage: nil,
+			キャッシュ内にデータ無ければ直接たたく処理：取得不可データは，初回リクエスト時はエラー，2回目以降はID以外nilとなっているArtworkを返すようにしてる
+
+		rawArtwork, err := metmuseum.NewClient().GetArtworkByID(id)
+		if err != nil || rawArtwork == nil || rawArtwork.ObjectID == 0 {
+			emptyArtwork := model.Artwork{
+				ID:           id,
+				Title:        nil,
+				Artist:       nil,
+				Culture:      nil,
+				ObjectDate:   nil,
+				PrimaryImage: nil,
+			}
+			cache.Save(&emptyArtwork)
+			http.Error(w, `{"error":failed to fetch artwork"}`, http.StatusInternalServerError)
+			return
 		}
-		cache.Save(&emptyArtwork)
-		http.Error(w, `{"error":failed to fetch artwork"}`, http.StatusInternalServerError)
-		return
-	}
 
-	newArtwork := model.Artwork{
-		ID:           rawArtwork.ObjectID,
-		Title:        &rawArtwork.Title,
-		Artist:       &rawArtwork.ArtistDisplayName,
-		Culture:      &rawArtwork.Culture,
-		ObjectDate:   &rawArtwork.ObjectDate,
-		PrimaryImage: &rawArtwork.PrimaryImage,
-	}
+		newArtwork := model.Artwork{
+			ID:           rawArtwork.ObjectID,
+			Title:        &rawArtwork.Title,
+			Artist:       &rawArtwork.ArtistDisplayName,
+			Culture:      &rawArtwork.Culture,
+			ObjectDate:   &rawArtwork.ObjectDate,
+			PrimaryImage: &rawArtwork.PrimaryImage,
+		}
 
-	cache.Save(&newArtwork) //キャッシュに新データ保存
+		cache.Save(&newArtwork) //キャッシュに新データ保存
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(newArtwork); err != nil {
-		http.Error(w, `{"error":"failed to encode artwork"}`, http.StatusInternalServerError)
-	}
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(newArtwork); err != nil {
+			http.Error(w, `{"error":"failed to encode artwork"}`, http.StatusInternalServerError)
+		}
+	*/
 
 }
 
@@ -103,38 +103,39 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 	artworkPage = cache.GetByPage(page) //
 
 	/*
-		キャッシュにないデータを直接APIサーバから取得を行い，キャッシュに保存する処理
-	*/
-	for i, art := range artworkPage {
-		id := (page-1)*len(artworkPage) + i + 1 //artworkPageはリスト数（=20）を想定
-		if art == nil {                         //一度もAPIサーバから取得していないデータ
-			rawArtwork, err := metmuseum.NewClient().GetArtworkByID(id)
-			if err != nil || rawArtwork == nil || rawArtwork.ObjectID == 0 { //取得しようとしたけどエラーの場合はID以外nilのデータをキャッシュに保存し，クライアントへレスポンスするリストにも登録
-				emptyArtwork := model.Artwork{
-					ID:           id,
-					Title:        nil,
-					Artist:       nil,
-					Culture:      nil,
-					ObjectDate:   nil,
-					PrimaryImage: nil,
-				}
-				cache.Save(&emptyArtwork)
-				artworkPage[i] = &emptyArtwork
-				continue
-			}
+			キャッシュにないデータを直接APIサーバから取得を行い，キャッシュに保存する処理
 
-			newArtwork := model.Artwork{ //新たなデータを正常に取得できた場合の処理
-				ID:           rawArtwork.ObjectID,
-				Title:        &rawArtwork.Title,
-				Artist:       &rawArtwork.ArtistDisplayName,
-				Culture:      &rawArtwork.Culture,
-				ObjectDate:   &rawArtwork.ObjectDate,
-				PrimaryImage: &rawArtwork.PrimaryImage,
+		for i, art := range artworkPage {
+			id := (page-1)*len(artworkPage) + i + 1 //artworkPageはリスト数（=20）を想定
+			if art == nil {                         //一度もAPIサーバから取得していないデータ
+				rawArtwork, err := metmuseum.NewClient().GetArtworkByID(id)
+				if err != nil || rawArtwork == nil || rawArtwork.ObjectID == 0 { //取得しようとしたけどエラーの場合はID以外nilのデータをキャッシュに保存し，クライアントへレスポンスするリストにも登録
+					emptyArtwork := model.Artwork{
+						ID:           id,
+						Title:        nil,
+						Artist:       nil,
+						Culture:      nil,
+						ObjectDate:   nil,
+						PrimaryImage: nil,
+					}
+					cache.Save(&emptyArtwork)
+					artworkPage[i] = &emptyArtwork
+					continue
+				}
+
+				newArtwork := model.Artwork{ //新たなデータを正常に取得できた場合の処理
+					ID:           rawArtwork.ObjectID,
+					Title:        &rawArtwork.Title,
+					Artist:       &rawArtwork.ArtistDisplayName,
+					Culture:      &rawArtwork.Culture,
+					ObjectDate:   &rawArtwork.ObjectDate,
+					PrimaryImage: &rawArtwork.PrimaryImage,
+				}
+				cache.Save(&newArtwork) //キャッシュに新データ保存
+				artworkPage[i] = &newArtwork
 			}
-			cache.Save(&newArtwork) //キャッシュに新データ保存
-			artworkPage[i] = &newArtwork
 		}
-	}
+	*/
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(artworkPage); err != nil {
