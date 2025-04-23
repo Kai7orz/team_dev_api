@@ -34,42 +34,6 @@ func GetArtworkByIDHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	/*
-			キャッシュ内にデータ無ければ直接たたく処理：取得不可データは，初回リクエスト時はエラー，2回目以降はID以外nilとなっているArtworkを返すようにしてる
-
-		rawArtwork, err := metmuseum.NewClient().GetArtworkByID(id)
-		if err != nil || rawArtwork == nil || rawArtwork.ObjectID == 0 {
-			emptyArtwork := model.Artwork{
-				ID:           id,
-				Title:        nil,
-				Artist:       nil,
-				Culture:      nil,
-				ObjectDate:   nil,
-				PrimaryImage: nil,
-			}
-			cache.Save(&emptyArtwork)
-			http.Error(w, `{"error":failed to fetch artwork"}`, http.StatusInternalServerError)
-			return
-		}
-
-		newArtwork := model.Artwork{
-			ID:           rawArtwork.ObjectID,
-			Title:        &rawArtwork.Title,
-			Artist:       &rawArtwork.ArtistDisplayName,
-			Culture:      &rawArtwork.Culture,
-			ObjectDate:   &rawArtwork.ObjectDate,
-			PrimaryImage: &rawArtwork.PrimaryImage,
-		}
-
-		cache.Save(&newArtwork) //キャッシュに新データ保存
-
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(newArtwork); err != nil {
-			http.Error(w, `{"error":"failed to encode artwork"}`, http.StatusInternalServerError)
-		}
-	*/
-
 }
 
 // GetArtworksHandler godoc
