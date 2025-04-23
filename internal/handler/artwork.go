@@ -100,42 +100,7 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//キャッシュのみを参照したデータを最初に取り，その後キャッシュミスした分を直接API たたいて取る
-	artworkPage = cache.GetByPage(page) //
-
-	/*
-			キャッシュにないデータを直接APIサーバから取得を行い，キャッシュに保存する処理
-
-		for i, art := range artworkPage {
-			id := (page-1)*len(artworkPage) + i + 1 //artworkPageはリスト数（=20）を想定
-			if art == nil {                         //一度もAPIサーバから取得していないデータ
-				rawArtwork, err := metmuseum.NewClient().GetArtworkByID(id)
-				if err != nil || rawArtwork == nil || rawArtwork.ObjectID == 0 { //取得しようとしたけどエラーの場合はID以外nilのデータをキャッシュに保存し，クライアントへレスポンスするリストにも登録
-					emptyArtwork := model.Artwork{
-						ID:           id,
-						Title:        nil,
-						Artist:       nil,
-						Culture:      nil,
-						ObjectDate:   nil,
-						PrimaryImage: nil,
-					}
-					cache.Save(&emptyArtwork)
-					artworkPage[i] = &emptyArtwork
-					continue
-				}
-
-				newArtwork := model.Artwork{ //新たなデータを正常に取得できた場合の処理
-					ID:           rawArtwork.ObjectID,
-					Title:        &rawArtwork.Title,
-					Artist:       &rawArtwork.ArtistDisplayName,
-					Culture:      &rawArtwork.Culture,
-					ObjectDate:   &rawArtwork.ObjectDate,
-					PrimaryImage: &rawArtwork.PrimaryImage,
-				}
-				cache.Save(&newArtwork) //キャッシュに新データ保存
-				artworkPage[i] = &newArtwork
-			}
-		}
-	*/
+	artworkPage = cache.GetByPage(page)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(artworkPage); err != nil {

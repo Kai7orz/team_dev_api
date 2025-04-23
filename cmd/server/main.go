@@ -17,13 +17,6 @@ import (
 
 func main() {
 
-	/*
-		ids := make([]int, 2000)
-		for i := 0; i < 2000; i++ {
-			ids[i] = i + 1
-		}
-		worker.StartWorker(ids)
-	*/
 	cache.ReadCsv()
 	http.Handle("/swagger/", httpSwagger.WrapHandler)
 	http.HandleFunc("/ping", pingHandler)

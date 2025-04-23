@@ -66,7 +66,7 @@ func GetAll() []*model.Artwork {
 
 func ReadCsv() {
 	cwd, _ := os.Getwd()
-	file, err := os.Open(cwd + "/internal/cache/MetObjects.csv") //パス指定は要相談
+	file, err := os.Open(cwd + "/internal/metmuseum/MetObjects.csv")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
@@ -100,14 +100,6 @@ func ReadCsv() {
 		}
 
 		objectID, _ := strconv.Atoi(record[strObjectID])
-
-		/*
-			fmt.Println("ID ", objectID)
-			fmt.Println("Title ", record[title])
-			fmt.Println("Artist ", record[artist])
-			fmt.Println("Culture ", record[culture])
-			fmt.Println("ObjectDate ", record[objectDate])
-		*/
 
 		tempObject := &model.Artwork{
 			ID:           objectID,
