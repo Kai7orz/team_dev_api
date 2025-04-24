@@ -42,6 +42,7 @@ func GetArtworkByIDHandler(w http.ResponseWriter, r *http.Request) {
 		PrimaryImage: rawArtwork.PrimaryImage,
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(artwork); err != nil {
 		http.Error(w, `{"error":"failed to encode artwork"}`, http.StatusInternalServerError)

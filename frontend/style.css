@@ -1,0 +1,61 @@
+.art-button {
+    width: 600px;
+    height: 50px;
+    border: solid 2px black;
+    border-radius: 10px;
+    background-color: bisque;
+}
+
+.see-more-button{
+    background-color: #ffd700;
+    color: #000;
+    border-radius: 10px;
+    padding: 10px 30px;
+    text-decoration: none;
+    font-size: 1em;
+    box-shadow: 0 5px 0 #b8860b;
+}
+
+.detail-card {
+    height: 80%;
+    width: 100%;
+    border: solid 3px #000;
+    border-radius: 20px;
+    background-color: bisque;
+}
+
+.page-item {
+    color: #1E90FF;
+}
+
+.page-item :hover {
+    cursor: pointer;
+}
+
+.image {
+    height: 500px;
+    margin-top: 2%;
+    border-radius: 10px;
+    border: solid 1.5px black;
+}
+
+.footer {
+    height: -20%;
+}
+
+.full-screen {
+    height: 100vh;
+    width: 100vw;
+}
+
+.card-screen {
+    height: 70%;
+}
+
+.search-field-class {
+    width: 500px;
+}
+
+.ex {
+    background-color: pink;
+}
