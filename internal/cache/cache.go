@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/Kai7orz/team_dev_api/internal/model"
 )
@@ -28,7 +27,7 @@ func GetByID(id int) (*model.Artwork, bool) {
 
 	//キャッシュにデータがあるとき
 	object, ok := GlobalCache.CacheMap[id]
-	if !ok || GlobalCache.CacheMap[id].{
+	if !ok {
 		return nil, false
 	}
 	return object, true
@@ -80,7 +79,12 @@ func ReadCsv() {
 		fmt.Println("Error opening file:", err)
 		return
 	}
-	defer file.Close()
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Println("Error closing file:", err)
+		}
+	}()
 
 	reader := csv.NewReader(file)
 	//records にDBからデータ読み込んで，最終利用時刻を以下のfor 文で追加しておく
@@ -100,8 +104,6 @@ func ReadCsv() {
 	culture := 10
 	objectDate := 28
 
-	
-
 	for _, record := range records {
 		if id > limit {
 			break
@@ -115,7 +117,6 @@ func ReadCsv() {
 
 		tempObject := &model.Artwork{
 			ID:           objectID,
-			LastUsedAt: time.Now().Unix,
 			Title:        &record[title],
 			Artist:       &record[artist],
 			Culture:      &record[culture],
