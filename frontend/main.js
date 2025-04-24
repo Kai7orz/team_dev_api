@@ -10,7 +10,6 @@ const config = {
     pageID: "page-id"
 }
 
-
 fetchArtworks();
 pagination();
 
@@ -22,7 +21,7 @@ document.getElementById(config.searchButton).addEventListener("click", () => {
 });
 
 function fetchArtworks() {
-    let url = config.url + currentPage;// + `?page=${currentPage}`;
+    let url = config.url + currentPage;
 
     fetch(url).then(response=>response.json()).then(function(data){
         //data.forEach(element => {
@@ -59,11 +58,7 @@ function pagination(){
                 </a>
             </li>
         </ul>
-    `
-
-    document.getElementsByClassName("page-link")[1].addEventListener("click", () => {
-        fetchArtworks();
-    })
+    `;
 
     document.getElementById("page-back-button").addEventListener("click", () => {
         if(currentPage != 1)    currentPage--;
