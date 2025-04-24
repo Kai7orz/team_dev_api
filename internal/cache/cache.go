@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/Kai7orz/team_dev_api/internal/model"
 )
 
 var GlobalCache = model.Cache{
 	CacheMap: map[int]*model.Artwork{},
+	MaxSize:  0,
 }
 
 func GetByID(id int) (*model.Artwork, bool) {
@@ -18,8 +20,15 @@ func GetByID(id int) (*model.Artwork, bool) {
 	GlobalCache.Mu.RLock()
 	defer GlobalCache.Mu.RUnlock()
 
+	//Getメソッドでデータがあれば，そのままオブジェクト返して，データの有効期限を更新する
+	//キャッシュにあるか見て，無ければDBからとってくる処理を実装
+
+	//データTTL生存チェックしデータ管理させつつ，DBから新しく読み込むときは，古いデータから順にリプレースしていく
+	//このために，
+
+	//キャッシュにデータがあるとき
 	object, ok := GlobalCache.CacheMap[id]
-	if !ok {
+	if !ok || GlobalCache.CacheMap[id].{
 		return nil, false
 	}
 	return object, true
@@ -74,6 +83,7 @@ func ReadCsv() {
 	defer file.Close()
 
 	reader := csv.NewReader(file)
+	//records にDBからデータ読み込んで，最終利用時刻を以下のfor 文で追加しておく
 	records, err := reader.ReadAll()
 	if err != nil {
 		fmt.Println("Error reading CSV data:", err)
@@ -90,6 +100,8 @@ func ReadCsv() {
 	culture := 10
 	objectDate := 28
 
+	
+
 	for _, record := range records {
 		if id > limit {
 			break
@@ -103,6 +115,7 @@ func ReadCsv() {
 
 		tempObject := &model.Artwork{
 			ID:           objectID,
+			LastUsedAt: time.Now().Unix,
 			Title:        &record[title],
 			Artist:       &record[artist],
 			Culture:      &record[culture],
