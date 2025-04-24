@@ -1,4 +1,5 @@
-let currentPage = 1;
+const params = new URLSearchParams(window.location.search);
+let currentPage = params.get("page") === null ? 1 : parseInt(params.get("page"));
 
 const config = {
     url: `http://localhost:8080/artworks/`,
