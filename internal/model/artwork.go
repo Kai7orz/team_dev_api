@@ -16,4 +16,5 @@ type Cache struct {
 	Mu       sync.RWMutex
 	CacheMap map[int]*Artwork
 	MaxSize  int
+	Ttl      int
 }
