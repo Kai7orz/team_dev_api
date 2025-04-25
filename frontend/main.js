@@ -16,8 +16,7 @@ pagination();
 
 document.getElementById(config.searchButton).addEventListener("click", () => {
     let fieldValue = document.getElementById(config.searchField).value;
-    currentQuery = fieldValue;
-    fetchArtworks()
+    let currentQuery = fieldValue;
 });
 
 function fetchArtworks() {
@@ -32,6 +31,11 @@ function fetchArtworks() {
 
 function generateArtCard(art) {
     let cardDiv = document.createElement("div");
+
+    if(art.artistDisplayName === "") {
+        art.artistDisplayName = "\"the artist is unknown\"";
+    }
+
     cardDiv.innerHTML = 
     `
         <button class="art-button mb-2" onclick="location.href='details.html?id=${art.objectID}&page=${currentPage}'"><strong>${art.title}</strong> by ${art.artistDisplayName}</button>
