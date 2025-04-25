@@ -17,14 +17,10 @@ var GlobalCache = model.Cache{
 
 func GetByID(id int) (*model.Artwork, bool) {
 
-	//キャッシュの中からオブジェクト取得
+	//キャッシュにあるか見て，無ければDBからとってくる処理を実装
 	GlobalCache.Mu.RLock()
 
-	//Getメソッドでデータがあれば，そのままオブジェクト返して，データの有効期限を更新する
-	//キャッシュにあるか見て，無ければDBからとってくる処理を実装
-
-	//データTTL生存チェックしデータ管理させつつ，DBから新しく読み込むときは，キャッシュ内の古いデータから順にリプレースしていく
-	object, ok := GlobalCache.GetCachedDataById(id)
+	object, ok := GlobalCache.GetCachedDataByID(id) //GetCachedDataByIdメソッドにより，キャッシュ内にデータがあり，生存時間内であれば，そのままオブジェクト返してデータの有効期限を更新する
 	GlobalCache.Mu.RUnlock()
 	if !ok {
 		singleObject, err := ReadDbByID(id) //キャッシュにないか，キャッシュ内の生存時間過ぎていたら，データベースからデータを取り出す
@@ -131,6 +127,9 @@ func Save(object *model.Artwork) error {
 	if _, exists := GlobalCache.CacheMap[object.ID]; exists {
 		return fmt.Errorf("already saved")
 	}
+
+	//キャッシュリフレッシュ処理（キャッシュ内の生存時間が過ぎたデータをすべて削除する）
+	GlobalCache.Refresh()
 
 	if len(GlobalCache.CacheMap) >= GlobalCache.MaxSize { //キャッシュ上限数データキャッシュしてる状態で，新たにキャッシュする必要がある場合は，キャッシュ内で最終利用時刻が最小のものをリプレース（この処理はキャッシュサイズ分の計算量を必要とするのでより効率的な処理が欲しい）
 		oldestUsedAt := int64(math.MaxInt64)
