@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -30,7 +31,46 @@ func (c *Cache) Refresh() {
 	}
 }
 
-func TestLoader(page int) []*Artwork {
+// キャッシュへの保存処理 ここでキャッシュのデータリプレースなども管理することに注意
+func (c *Cache) Save(object *Artwork) error {
+
+	if object == nil {
+		return fmt.Errorf("cannot save nil data")
+	}
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+
+	if _, exists := c.CacheMap[object.ID]; exists {
+		return fmt.Errorf("already saved")
+	}
+
+	//キャッシュリフレッシュ処理（キャッシュ内の生存時間が過ぎたデータをすべて削除する）
+	c.Refresh()
+
+	if len(c.CacheMap) >= c.MaxSize { //キャッシュ上限数データキャッシュしてる状態で，新たにキャッシュする必要がある場合は，キャッシュ内で最終利用時刻が最小のものをリプレース（この処理はキャッシュサイズ分の計算量を必要とするのでより効率的な処理が欲しい）
+		oldestUsedAt := int64(math.MaxInt64)
+		deleteId := 0
+		for id, obj := range c.CacheMap {
+			if obj.LastUsedAt < oldestUsedAt {
+				oldestUsedAt = obj.LastUsedAt
+				deleteId = id
+			}
+		}
+		if deleteId == 0 {
+			return fmt.Errorf("error invalid delete id")
+		}
+
+		delete(c.CacheMap, deleteId)
+		c.CacheMap[object.ID] = object //キャッシュへの保存
+		return nil
+	}
+
+	c.CacheMap[object.ID] = object
+
+	return nil
+}
+
+func TestLoader(page int) []*Artwork { //DBからのページ単位でのデータ読み込みを想定した関数
 	var artworks []*Artwork
 
 	startID := (page-1)*20 + 1
