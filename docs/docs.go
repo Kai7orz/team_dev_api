@@ -107,6 +107,10 @@ const docTemplate = `{
                 "culture": {
                     "type": "string"
                 },
+                "lastUsedAt": {
+                    "description": "最終利用時刻",
+                    "type": "integer"
+                },
                 "objectDate": {
                     "type": "string"
                 },
