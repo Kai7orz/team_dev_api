@@ -1,4 +1,5 @@
-let currentPage = 1;
+const params = new URLSearchParams(window.location.search);
+let currentPage = params.get("page") === null ? 1 : parseInt(params.get("page"));
 
 const config = {
     url: `http://localhost:8080/artworks/`,
@@ -9,19 +10,17 @@ const config = {
     pageID: "page-id"
 }
 
-
 fetchArtworks();
 pagination();
 
 
 document.getElementById(config.searchButton).addEventListener("click", () => {
     let fieldValue = document.getElementById(config.searchField).value;
-    currentQuery = fieldValue;
-    fetchArtworks()
+    let currentQuery = fieldValue;
 });
 
 function fetchArtworks() {
-    let url = config.url + currentPage;// + `?page=${currentPage}`;
+    let url = config.url + currentPage;
 
     fetch(url).then(response=>response.json()).then(function(data){
         //data.forEach(element => {
@@ -32,6 +31,11 @@ function fetchArtworks() {
 
 function generateArtCard(art) {
     let cardDiv = document.createElement("div");
+
+    if(art.artistDisplayName === "") {
+        art.artistDisplayName = "\"the artist is unknown\"";
+    }
+
     cardDiv.innerHTML = 
     `
         <button class="art-button mb-2" onclick="location.href='details.html?id=${art.objectID}&page=${currentPage}'"><strong>${art.title}</strong> by ${art.artistDisplayName}</button>
@@ -58,11 +62,7 @@ function pagination(){
                 </a>
             </li>
         </ul>
-    `
-
-    document.getElementsByClassName("page-link")[1].addEventListener("click", () => {
-        fetchArtworks();
-    })
+    `;
 
     document.getElementById("page-back-button").addEventListener("click", () => {
         if(currentPage != 1)    currentPage--;
