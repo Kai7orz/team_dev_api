@@ -32,5 +32,5 @@ fetch(`http://localhost:8080/artworks/${artId}`)
     });
 
 document.getElementById("back-button").addEventListener("click", () => {
-    location.href=`index.html?page=${currentPage}`;
+    location.href=`/frontend/index.html?page=${currentPage}`;
 });
