@@ -3,9 +3,9 @@ package cache
 import (
 	"fmt"
 	"math"
-	"os"
 	"time"
 
+	"github.com/Kai7orz/team_dev_api/internal/metmuseum"
 	"github.com/Kai7orz/team_dev_api/internal/model"
 )
 
@@ -13,6 +13,12 @@ var GlobalCache = model.Cache{
 	CacheMap: map[int]*model.Artwork{},
 	MaxSize:  2,
 	Ttl:      60,
+}
+
+var GlobalPageCache = model.PageCache{
+	PageData:    make(map[int]model.Page),
+	MaxPageSize: 2,
+	Ttl:         6,
 }
 
 func GetByID(id int) (*model.Artwork, bool) {
@@ -23,7 +29,7 @@ func GetByID(id int) (*model.Artwork, bool) {
 	object, ok := GlobalCache.GetCachedDataByID(id) //GetCachedDataByIdメソッドにより，キャッシュ内にデータがあり，生存時間内であれば，そのままオブジェクト返してデータの有効期限を更新する
 	GlobalCache.Mu.RUnlock()
 	if !ok {
-		singleObject, err := ReadDbByID(id) //キャッシュにないか，キャッシュ内の生存時間過ぎていたら，データベースからデータを取り出す
+		singleObject, err := GetDataByID(id) //キャッシュにないか，キャッシュ内の生存時間過ぎていたら，データベースからデータを取り出すーー＞APIからとってきてキャッシュする
 		if err != nil {
 			fmt.Println("Error At Reading Database ")
 			return nil, false
@@ -39,28 +45,6 @@ func GetByID(id int) (*model.Artwork, bool) {
 	GlobalCache.UpdateLastUsedAt(id) //最終接触時刻の更新
 
 	return object, true
-}
-
-func GetByPage(page int) []*model.Artwork {
-	//キャッシュの中からオブジェクト取得（ページ単位）
-	limit := 20
-	start := (page-1)*limit + 1
-	end := start + limit - 1
-
-	GlobalCache.Mu.RLock()
-	defer GlobalCache.Mu.RUnlock()
-
-	var result []*model.Artwork
-
-	for id := start; id <= end; id++ {
-		art, ok := GlobalCache.CacheMap[id]
-		if ok {
-			result = append(result, art)
-		} else {
-			result = append(result, nil) // キャッシュに存在しないデータはnil
-		}
-	}
-	return result
 }
 
 // 検索機能などにおいてnil入ったデータを扱いたくないので，それ等除外したデータを返す
@@ -80,35 +64,22 @@ func GetAll() []*model.Artwork {
 	return result
 }
 
-func ReadDbByID(id int) (*model.Artwork, error) { //この関数はDBから1つデータ読み込むだけで，キャッシュへの保存はしていないことに注意する
+func GetDataByID(id int) (*model.Artwork, error) { //この関数は外部APIから1つデータ読み込んで返す関数
 
-	//以下のCSVファイルから読み込んでいる部分を，DBから読み込むように修正
-	cwd, _ := os.Getwd()
-	file, err := os.Open(cwd + "/internal/metmuseum/MetObjects.csv")
+	client := metmuseum.NewClient()
+	raw, err := client.GetArtworkByID(id)
 	if err != nil {
-		return nil, err
+		fmt.Printf("error: server internal")
 	}
 
-	defer func() {
-		if err := file.Close(); err != nil {
-			fmt.Println("Error closing file:", err)
-		}
-	}()
-
-	//DBとマッピングされているデータを読み込む（現状は，テストとして1つのデータを定義）
-	title := "title"
-	artist := "artist"
-	culture := "culture"
-	objectDate := "objectDate"
-
 	responseObject := &model.Artwork{
-		ID:           id,
+		ID:           raw.ObjectID,
 		LastUsedAt:   time.Now().Unix(),
-		Title:        &title,
-		Artist:       &artist,
-		Culture:      &culture,
-		ObjectDate:   &objectDate,
-		PrimaryImage: nil,
+		Title:        &raw.Title,
+		Artist:       &raw.ArtistDisplayName,
+		Culture:      &raw.ArtistDisplayName,
+		ObjectDate:   &raw.PrimaryImage,
+		PrimaryImage: &raw.PrimaryImage,
 	}
 
 	return responseObject, nil

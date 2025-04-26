@@ -7,8 +7,9 @@ import (
 	"strings"
 
 	"github.com/Kai7orz/team_dev_api/internal/cache"
-	"github.com/Kai7orz/team_dev_api/internal/model"
 )
+
+const MaxAllowedPage = 1000
 
 // GetArtworkByID godoc
 // @Summary Get artwork by ID
@@ -48,10 +49,8 @@ func GetArtworkByIDHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} map[string]string
 // @Router /artworks [get]
 func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
-
 	var err error
-	var artworkPage []*model.Artwork //1ページ分の作品を記録するためのスライス
-	var page int                     //ページ番号
+	var page int //ページ番号
 	pageStr := r.URL.Query().Get("page")
 
 	if pageStr == "" {
@@ -64,12 +63,16 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//キャッシュのみを参照したデータを最初に取り，その後キャッシュミスした分を直接API たたいて取る
-	artworkPage = cache.GetByPage(page)
+	if page > MaxAllowedPage { //ページ指定可能な最大値を設定しておく
+		http.Error(w, `{"error":"page too large"}`, http.StatusBadRequest)
+		return
+	}
+
+	artworks := cache.GlobalPageCache.GetPage(page) //特定page のデータを取得する
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(artworkPage); err != nil {
+	if err := json.NewEncoder(w).Encode(artworks); err != nil {
 		http.Error(w, `{"error":"failed to encode artwork"}`, http.StatusInternalServerError)
 	}
 }

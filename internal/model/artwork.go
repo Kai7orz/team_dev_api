@@ -16,5 +16,17 @@ type Cache struct {
 	Mu       sync.RWMutex
 	CacheMap map[int]*Artwork
 	MaxSize  int
-	Ttl      int
+	Ttl      int64
+}
+
+type Page struct {
+	Artworks   []*Artwork
+	LastUsedAt int64
+}
+
+type PageCache struct {
+	Mu          sync.RWMutex
+	PageData    map[int]Page
+	MaxPageSize int
+	Ttl         int64
 }
