@@ -4,6 +4,7 @@ package metmuseum
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -36,6 +37,9 @@ func NewClient() *Client {
 }
 
 func (c *Client) GetArtworkByID(id int) (*RawArtwork, error) {
+
+	log.Println("called->", id)
+
 	url := fmt.Sprintf("%s/objects/%d", c.BaseURL, id)
 
 	resp, err := c.HTTPClient.Get(url)

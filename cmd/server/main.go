@@ -15,9 +15,11 @@ import (
 )
 
 func main() {
+
 	http.Handle("/swagger/", httpSwagger.WrapHandler)
 	http.HandleFunc("/ping", pingHandler)
 	http.HandleFunc("/artworks/", handler.GetArtworkByIDHandler)
+	http.HandleFunc("/artworks", handler.GetArtworksHandler)
 
 	fmt.Println("Server is running at http://localhost:8080")
 	err := http.ListenAndServe(":8080", nil)
