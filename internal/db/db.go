@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"encoding/csv"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -256,11 +257,12 @@ type ArtworkRaw struct {
 	ObjectWikidataURL string
 }
 
-func GetArtworks(page int, filtersStr string, sortStr string) []*model.Artwork {
+func GetArtworks(page int, filtersStr string, sortBy string) []*model.Artwork {
 
+	fmt.Println("sort ->", sortBy)
 	offset := (page - 1) * 20
 	sortOrder := "ASC"
-	query := "SELECT * FROM artworks WHERE 1=1"
+	query := "SELECT * FROM artworks WHERE 1=1 AND title IS NOT NULL AND title != ''"
 	args := []interface{}{}
 
 	if filtersStr != "" {
@@ -269,12 +271,17 @@ func GetArtworks(page int, filtersStr string, sortStr string) []*model.Artwork {
 
 	}
 
-	if sortStr != "" {
-		query += " ORDER BY " + sortStr + " " + sortOrder
+	if sortBy != "" {
+
+		query += " ORDER BY  ltrim(title) COLLATE NOCASE  " + sortOrder
+	} else {
+		query += "ORDER BY " + sortBy + " " + sortOrder
 	}
 
 	query += " LIMIT 20 OFFSET ?"
 	args = append(args, offset)
+
+	fmt.Println("Query ->", query)
 
 	rows, err := db.Query(query, args...)
 	if err != nil {

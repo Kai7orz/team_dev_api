@@ -53,9 +53,9 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var page int //ページ番号
 	allowedSortColumns := map[string]bool{
-		"title": true,
+		"title":   true,
+		"culture": true,
 	}
-
 	pageStr := r.URL.Query().Get("page")
 	filterStr := r.URL.Query().Get("culture")
 	sortBy := r.URL.Query().Get("sort")
@@ -71,10 +71,6 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//不正な値かどうか判定する
-	/*	if filtersStr != "" {
-		}
-	*/
 	//不正な値かどうか判定する
 	if sortBy != "" {
 		if !allowedSortColumns[sortBy] {
