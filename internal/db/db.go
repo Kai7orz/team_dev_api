@@ -256,9 +256,25 @@ type ArtworkRaw struct {
 	ObjectWikidataURL string
 }
 
-func GetArtworks(page int) []*model.Artwork {
+func GetArtworks(page int, filterStr string, sortStr string) []*model.Artwork {
 	offset := (page - 1) * 20
-	rows, err := db.Query("SELECT * FROM artworks LIMIT 20 OFFSET ?", offset)
+	sortOrder := "ASC"
+	query := "SELECT * FROM artworks WHERE 1=1"
+	args := []interface{}{}
+
+	if filterStr != "" {
+		query += " AND culture = ?"
+		args = append(args, filterStr)
+	}
+
+	if sortStr != "" {
+		query += " ORDER BY " + sortStr + " " + sortOrder
+	}
+
+	query += " LIMIT 20 OFFSET ?"
+	args = append(args, offset)
+
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -52,8 +52,18 @@ func GetArtworkByIDHandler(w http.ResponseWriter, r *http.Request) {
 func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var page int //ページ番号
-	pageStr := r.URL.Query().Get("page")
+	allowedFilterColumns := map[string]bool{
+		"culture": true,
+	}
+	allowedSortColumns := map[string]bool{
+		"title": true,
+	}
 
+	pageStr := r.URL.Query().Get("page")
+	filterStr := r.URL.Query().Get("filter")
+	sortStr := r.URL.Query().Get("sort")
+
+	//デフォルトの設定
 	if pageStr == "" {
 		page = 1 //デフォルトで1ページ目の20件を取得
 	} else {
@@ -64,12 +74,28 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	//不正な値かどうか判定する
+	if filterStr != "" {
+		if !allowedFilterColumns[filterStr] {
+			http.Error(w, `{"error":"invalid filter column"}`, http.StatusBadRequest)
+			return
+		}
+	}
+
+	//不正な値かどうか判定する
+	if sortStr != "" {
+		if !allowedSortColumns[sortStr] {
+			http.Error(w, `{"error":"invalid filter column"}`, http.StatusBadRequest)
+			return
+		}
+	}
+
 	if page > MaxAllowedPage { //ページ指定可能な最大値を設定しておく
 		http.Error(w, `{"error":"page too large"}`, http.StatusBadRequest)
 		return
 	}
 
-	artworks := db.GetArtworks(page)
+	artworks := db.GetArtworks(page, filterStr, sortStr)
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
