@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Kai7orz/team_dev_api/internal/cache"
+	"github.com/Kai7orz/team_dev_api/internal/db"
 )
 
 const MaxAllowedPage = 1000
@@ -68,7 +69,7 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artworks := cache.GlobalPageCache.GetPage(page) //特定page のデータを取得する
+	artworks := db.GetArtworks(page)
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
