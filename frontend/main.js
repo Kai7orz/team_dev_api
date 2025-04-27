@@ -2,7 +2,7 @@ const params = new URLSearchParams(window.location.search);
 let currentPage = params.get("page") === null ? 1 : parseInt(params.get("page"));
 
 const config = {
-    url: `http://localhost:8080/artworks/`,
+    url: `http://localhost:8080/artworks`,
     parentId: "item-list",
     seeMoreButtonId: "loadMore",
     searchButton: "search-button",
@@ -20,12 +20,12 @@ document.getElementById(config.searchButton).addEventListener("click", () => {
 });
 
 function fetchArtworks() {
-    let url = config.url + currentPage;
+    let url = config.url + "?page=" + currentPage;
 
     fetch(url).then(response=>response.json()).then(function(data){
-        //data.forEach(element => {
-            generateArtCard(data);
-        //});
+        data.forEach(element => {
+            generateArtCard(element);
+        });
     });
 }
 
@@ -38,7 +38,7 @@ function generateArtCard(art) {
 
     cardDiv.innerHTML = 
     `
-        <button class="art-button mb-2" onclick="location.href='details.html?id=${art.objectID}&page=${currentPage}'"><strong>${art.title}</strong> by ${art.artistDisplayName}</button>
+        <button class="art-button mb-2" onclick="location.href='/frontend/details.html?id=${art.objectID}&page=${currentPage}'"><strong>${art.title}</strong> by ${art.artistDisplayName}</button>
     `
     document.getElementById(config.parentId).append(cardDiv);
 }
@@ -53,9 +53,9 @@ function pagination(){
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
-            <li class="page-item"><a class="page-link" href="index.html?page=${currentPage}">${currentPage}</a></li>
-            <li class="page-item"><a class="page-link" href="index.html?page=${currentPage+1}">${currentPage+1}</a></li>
-            <li class="page-item"><a class="page-link" href="index.html?page=${currentPage+2}">${currentPage+2}</a></li>
+            <li class="page-item"><a class="page-link" href="/frontend/index.html?page=${currentPage}">${currentPage}</a></li>
+            <li class="page-item"><a class="page-link" href="/frontend/index.html?page=${currentPage+1}">${currentPage+1}</a></li>
+            <li class="page-item"><a class="page-link" href="/frontend/index.html?page=${currentPage+2}">${currentPage+2}</a></li>
             <li id="page-next-button" class="page-item">
                 <a class="page-link" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>

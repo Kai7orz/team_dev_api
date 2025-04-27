@@ -22,6 +22,11 @@ func main() {
 	http.HandleFunc("/artworks/", handler.GetArtworkByIDHandler)
 	http.HandleFunc("/artworks", handler.GetArtworksHandler)
 
+	fs := http.FileServer(http.Dir("./frontend"))
+	http.Handle("/frontend/", http.StripPrefix("/frontend/", fs))
+
+	http.HandleFunc("/", staticHTMLHandler)
+
 	fmt.Println("Server is running at http://localhost:8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -40,4 +45,8 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error writing response:", err)
 	}
+}
+
+func staticHTMLHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./frontend/index.html")
 }
