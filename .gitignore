@@ -25,5 +25,6 @@ vendor/
 
 # その他
 *.toml
+*.db
 docs/swagger.yaml
 docs/swagger.json

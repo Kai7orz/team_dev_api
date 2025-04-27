@@ -10,12 +10,13 @@ import (
 	"net/http"
 
 	_ "github.com/Kai7orz/team_dev_api/docs"
+	"github.com/Kai7orz/team_dev_api/internal/db"
 	"github.com/Kai7orz/team_dev_api/internal/handler"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
-
+	db.InitDB()
 	http.Handle("/swagger/", httpSwagger.WrapHandler)
 	http.HandleFunc("/ping", pingHandler)
 	http.HandleFunc("/artworks/", handler.GetArtworkByIDHandler)
