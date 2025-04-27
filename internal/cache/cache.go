@@ -25,62 +25,34 @@ func GetByID(id int) (*model.Artwork, bool) {
 	//キャッシュにあるか見て，無ければDBからとってくる処理を実装
 	GlobalCache.Mu.RLock()
 
-	object, ok := GlobalCache.GetCachedDataByID(id) //GetCachedDataByIdメソッドにより，キャッシュ内にデータがあり，生存時間内であれば，そのままオブジェクト返してデータの有効期限を更新する
+	object, ok := GlobalCache.GetCachedDataByID(id) //GetCachedDataByIdメソッドにより，キャッシュ内にデータがあり，生存時間内であればデータが返される
 	GlobalCache.Mu.RUnlock()
 	if !ok {
-		singleObject, err := GetDataByID(id) //キャッシュにないか，キャッシュ内の生存時間過ぎていたら，APIからとってきてキャッシュする
+		client := metmuseum.NewClient()
+		raw, err := client.GetArtworkByID(id) //直接APIたたいてデータを取得する処理
 		if err != nil {
-			fmt.Println("Error At Reading Database ")
+			fmt.Printf("error: server internal")
 			return nil, false
 		}
 
-		err = GlobalCache.Save(singleObject) //キャッシュに保存
+		responseObject := &model.Artwork{
+			ID:           raw.ObjectID,
+			LastUsedAt:   time.Now().Unix(),
+			Title:        &raw.Title,
+			Artist:       &raw.ArtistDisplayName,
+			Culture:      &raw.ArtistDisplayName,
+			ObjectDate:   &raw.PrimaryImage,
+			PrimaryImage: &raw.PrimaryImage,
+		}
+
+		err = GlobalCache.Save(responseObject) //キャッシュに保存
 		if err != nil {
 			fmt.Println("Error At Saving Cache:", err)
 		}
-		return singleObject, true
+		return responseObject, true
 	}
 
-	GlobalCache.UpdateLastUsedAt(id) //最終接触時刻の更新
+	GlobalCache.UpdateLastUsedAt(id) //データの有効期限を更新
 
 	return object, true
-}
-
-// 検索機能などにおいてnil入ったデータを扱いたくないので，それ等除外したデータを返す
-func GetAll() []*model.Artwork {
-
-	GlobalCache.Mu.RLock()
-	defer GlobalCache.Mu.RUnlock()
-
-	var result []*model.Artwork
-
-	for _, art := range GlobalCache.CacheMap {
-		if art != nil && art.Title != nil {
-			result = append(result, art)
-		}
-	}
-
-	return result
-}
-
-func GetDataByID(id int) (*model.Artwork, error) { //この関数は外部APIから1つデータ読み込んで返す関数
-
-	client := metmuseum.NewClient()
-	raw, err := client.GetArtworkByID(id)
-	if err != nil {
-		fmt.Printf("error: server internal")
-	}
-
-	responseObject := &model.Artwork{
-		ID:           raw.ObjectID,
-		LastUsedAt:   time.Now().Unix(),
-		Title:        &raw.Title,
-		Artist:       &raw.ArtistDisplayName,
-		Culture:      &raw.ArtistDisplayName,
-		ObjectDate:   &raw.PrimaryImage,
-		PrimaryImage: &raw.PrimaryImage,
-	}
-
-	return responseObject, nil
-
 }

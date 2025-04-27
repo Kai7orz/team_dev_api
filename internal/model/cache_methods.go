@@ -22,8 +22,8 @@ func (c *Cache) GetCachedDataByID(id int) (*Artwork, bool) {
 	return object, true
 }
 
+// 有効期限が切れたデータを削除する
 func (c *Cache) Refresh() {
-
 	for key, value := range c.CacheMap {
 		if (time.Now().Unix() - value.LastUsedAt) >= int64(c.Ttl) {
 			delete(c.CacheMap, key)
@@ -47,7 +47,7 @@ func (c *Cache) Save(object *Artwork) error {
 	//キャッシュリフレッシュ処理（キャッシュ内の生存時間が過ぎたデータをすべて削除する）
 	c.Refresh()
 
-	if len(c.CacheMap) >= c.MaxSize { //キャッシュ上限数データキャッシュしてる状態で，新たにキャッシュする必要がある場合は，キャッシュ内で最終利用時刻が最小のものをリプレース（この処理はキャッシュサイズ分の計算量を必要とするのでより効率的な処理が欲しい）
+	if len(c.CacheMap) >= c.MaxSize { //上限数データをキャッシュしてる状態で，新たにキャッシュする必要がある場合は，キャッシュ内で最終使用時刻が最も古いものをリプレース
 		oldestUsedAt := int64(math.MaxInt64)
 		deleteId := 0
 		for id, obj := range c.CacheMap {
@@ -56,6 +56,7 @@ func (c *Cache) Save(object *Artwork) error {
 				deleteId = id
 			}
 		}
+
 		if deleteId == 0 {
 			return fmt.Errorf("error invalid delete id")
 		}
