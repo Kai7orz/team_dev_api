@@ -23,6 +23,17 @@ git lfs pull
 make run
 ```
 
+## APIドキュメンテーションの表示
+
+```bash
+http://localhost:8080/swagger/index.html
+```
+
+## デモアプリケーションの表示
+
+```bash
+http://localhost:8080/demo
+```
 
 # 開発者向け
 
