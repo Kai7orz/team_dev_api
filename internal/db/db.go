@@ -8,7 +8,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/Kai7orz/team_dev_api/internal/model"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -223,4 +225,96 @@ func boolToInt(b bool) int {
 		return 1
 	}
 	return 0
+}
+
+type ArtworkRaw struct {
+	ID                int
+	AccessionYear     int
+	ObjectBeginDate   int
+	ObjectEndDate     int
+	ArtistBeginDate   int
+	ArtistEndDate     int
+	MetadataDate      string
+	IsHighlight       bool
+	IsPublicDomain    bool
+	Department        string
+	ObjectName        string
+	Title             string
+	Culture           string
+	Period            string
+	Dynasty           string
+	Reign             string
+	Portfolio         string
+	ArtistDisplayName string
+	ArtistNationality string
+	ArtistGender      string
+	ObjectDate        string
+	Medium            string
+	Classification    string
+	LinkResource      string
+	ArtistWikidataURL string
+	ObjectWikidataURL string
+}
+
+func GetArtworks(page int) []*model.Artwork {
+	offset := (page - 1) * 20
+	rows, err := db.Query("SELECT * FROM artworks LIMIT 20 OFFSET ?", offset)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("failed to close rows: %v", err)
+		}
+	}()
+
+	artworks := []*model.Artwork{}
+	for rows.Next() {
+		var artworkRaw ArtworkRaw
+
+		err := rows.Scan(
+			&artworkRaw.ID,
+			&artworkRaw.AccessionYear,
+			&artworkRaw.ObjectBeginDate,
+			&artworkRaw.ObjectEndDate,
+			&artworkRaw.ArtistBeginDate,
+			&artworkRaw.ArtistEndDate,
+			&artworkRaw.MetadataDate,
+			&artworkRaw.IsHighlight,
+			&artworkRaw.IsPublicDomain,
+			&artworkRaw.Department,
+			&artworkRaw.ObjectName,
+			&artworkRaw.Title,
+			&artworkRaw.Culture,
+			&artworkRaw.Period,
+			&artworkRaw.Dynasty,
+			&artworkRaw.Reign,
+			&artworkRaw.Portfolio,
+			&artworkRaw.ArtistDisplayName,
+			&artworkRaw.ArtistNationality,
+			&artworkRaw.ArtistGender,
+			&artworkRaw.ObjectDate,
+			&artworkRaw.Medium,
+			&artworkRaw.Classification,
+			&artworkRaw.LinkResource,
+			&artworkRaw.ArtistWikidataURL,
+			&artworkRaw.ObjectWikidataURL,
+		)
+		if err != nil {
+			log.Printf("Error scanning row: %v", err)
+			continue
+		}
+
+		artwork := &model.Artwork{
+			ID:           artworkRaw.ID,
+			LastUsedAt:   time.Now().Unix(),
+			Title:        &artworkRaw.Title,
+			Artist:       &artworkRaw.ArtistDisplayName,
+			Culture:      &artworkRaw.Culture,
+			ObjectDate:   &artworkRaw.ObjectDate,
+			PrimaryImage: nil,
+		}
+		artworks = append(artworks, artwork)
+	}
+	return artworks
 }
