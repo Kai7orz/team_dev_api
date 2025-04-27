@@ -55,3 +55,10 @@
 .search-field-class {
     width: 500px;
 }
+
+#sort-select {
+    width: 200px;
+    height: 40px;
+    font-size: 16px;
+    padding: 5px;
+}
