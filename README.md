@@ -9,7 +9,7 @@ Web API のチーム開発
 # git-lfsのインストール(macの場合)
 brew install git-lfs
 
-# git lfsのインストール(ubuntu/linuxの場合)
+# git-lfsのインストール(ubuntu/linuxの場合)
 sudo apt-get install git-lfs
 ```
 
