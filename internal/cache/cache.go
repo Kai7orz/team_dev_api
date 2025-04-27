@@ -40,8 +40,8 @@ func GetByID(id int) (*model.Artwork, bool) {
 			LastUsedAt:   time.Now().Unix(),
 			Title:        &raw.Title,
 			Artist:       &raw.ArtistDisplayName,
-			Culture:      &raw.ArtistDisplayName,
-			ObjectDate:   &raw.PrimaryImage,
+			Culture:      &raw.Culture,
+			ObjectDate:   &raw.ObjectDate,
 			PrimaryImage: &raw.PrimaryImage,
 		}
 
