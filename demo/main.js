@@ -40,7 +40,7 @@ document.getElementById(config.searchButton).addEventListener("click", () => {
     }
 
     if(sortBy !== "") {
-        location.href += `&sortBy=${sortBy}`;
+        location.href = `index.html?page=${currentPage}&culture=${value}&sortBy=${sortBy}`;
     }
 
 });
@@ -55,6 +55,7 @@ function fetchArtworks() {
     fetch(url).then(response=>response.json()).then(function(data){
         data.forEach(element => {
             generateArtCard(element);
+            console.log(element);
         });
     });
 
@@ -127,12 +128,12 @@ function pagination(){
 
     document.getElementById("page-back-button").addEventListener("click", () => {
         if(currentPage != 1)    currentPage--;
-        pagination(filter);
+        pagination();
     });
 
     document.getElementById("page-next-button").addEventListener("click", () => {
         currentPage++;
-        pagination(filter);
+        pagination();
     })
 }
 

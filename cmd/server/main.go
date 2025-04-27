@@ -21,8 +21,8 @@ func main() {
 	http.HandleFunc("/artworks/", handler.GetArtworkByIDHandler)
 	http.HandleFunc("/artworks", handler.GetArtworksHandler)
 
-	fs := http.FileServer(http.Dir("./frontend"))
-	http.Handle("/frontend/", http.StripPrefix("/frontend/", fs))
+	fs := http.FileServer(http.Dir("./demo"))
+	http.Handle("/demo/", http.StripPrefix("/demo/", fs))
 
 	http.HandleFunc("/", staticHTMLHandler)
 
@@ -34,5 +34,5 @@ func main() {
 }
 
 func staticHTMLHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./frontend/index.html")
+	http.ServeFile(w, r, "./demo/index.html")
 }
