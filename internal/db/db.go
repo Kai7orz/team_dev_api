@@ -256,15 +256,17 @@ type ArtworkRaw struct {
 	ObjectWikidataURL string
 }
 
-func GetArtworks(page int, filterStr string, sortStr string) []*model.Artwork {
+func GetArtworks(page int, filtersStr string, sortStr string) []*model.Artwork {
+
 	offset := (page - 1) * 20
 	sortOrder := "ASC"
 	query := "SELECT * FROM artworks WHERE 1=1"
 	args := []interface{}{}
 
-	if filterStr != "" {
+	if filtersStr != "" {
 		query += " AND culture = ?"
-		args = append(args, filterStr)
+		args = append(args, filtersStr)
+
 	}
 
 	if sortStr != "" {
