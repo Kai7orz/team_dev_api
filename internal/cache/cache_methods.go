@@ -1,9 +1,11 @@
-package model
+package cache
 
 import (
 	"fmt"
 	"math"
 	"time"
+
+	"github.com/Kai7orz/team_dev_api/internal/model"
 )
 
 func (c *Cache) UpdateLastUsedAt(id int) {
@@ -12,7 +14,7 @@ func (c *Cache) UpdateLastUsedAt(id int) {
 	c.CacheMap[id].LastUsedAt = time.Now().Unix()
 }
 
-func (c *Cache) GetCachedDataByID(id int) (*Artwork, bool) {
+func (c *Cache) GetCachedDataByID(id int) (*model.Artwork, bool) {
 	c.Mu.RLock()
 	defer c.Mu.RUnlock()
 	object, ok := c.CacheMap[id]
@@ -32,7 +34,7 @@ func (c *Cache) Refresh() {
 }
 
 // キャッシュへの保存処理 ここでキャッシュのデータリプレースなども管理することに注意
-func (c *Cache) Save(object *Artwork) error {
+func (c *Cache) Save(object *model.Artwork) error {
 
 	if object == nil {
 		return fmt.Errorf("cannot save nil data")
@@ -71,8 +73,8 @@ func (c *Cache) Save(object *Artwork) error {
 	return nil
 }
 
-func TestLoader(page int) []*Artwork { //DBからのページ単位でのデータ読み込みを想定した関数
-	var artworks []*Artwork
+func TestLoader(page int) []*model.Artwork { //DBからのページ単位でのデータ読み込みを想定した関数
+	var artworks []*model.Artwork
 
 	startID := (page-1)*20 + 1
 
@@ -84,7 +86,7 @@ func TestLoader(page int) []*Artwork { //DBからのページ単位でのデー�
 		objectDate := "2025"
 		primaryImage := fmt.Sprintf("https://example.com/image%d.jpg", id)
 
-		artworks = append(artworks, &Artwork{
+		artworks = append(artworks, &model.Artwork{
 			ID:           id,
 			LastUsedAt:   time.Now().Unix(),
 			Title:        &title,
@@ -98,7 +100,7 @@ func TestLoader(page int) []*Artwork { //DBからのページ単位でのデー�
 	return artworks
 }
 
-func (pc *PageCache) GetPage(page int) []*Artwork {
+func (pc *PageCache) GetPage(page int) []*model.Artwork {
 	//はじめにキャッシュからデータを探して，無ければDBからとってくる
 	pc.Mu.Lock()
 	defer pc.Mu.Unlock()
@@ -154,8 +156,7 @@ func (pc *PageCache) CountNonEmptyPages() int {
 	return count
 }
 
-func (pc *PageCache) savePageInternal(page int, artworks []*Artwork, now int64) {
-
+func (pc *PageCache) savePageInternal(page int, artworks []*model.Artwork, now int64) {
 	if len(pc.PageData) >= pc.MaxPageSize {
 		pc.DeleteOldestPage()
 	}
@@ -164,10 +165,9 @@ func (pc *PageCache) savePageInternal(page int, artworks []*Artwork, now int64) 
 		Artworks:   artworks,
 		LastUsedAt: now,
 	}
-
 }
 
-func (pc *PageCache) SavePage(page int, artworks []*Artwork) {
+func (pc *PageCache) SavePage(page int, artworks []*model.Artwork) {
 	pc.Mu.Lock()
 	defer pc.Mu.Unlock()
 
@@ -184,5 +184,4 @@ func (pc *PageCache) SavePage(page int, artworks []*Artwork) {
 		Artworks:   artworks,
 		LastUsedAt: now,
 	}
-
 }
