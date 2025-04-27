@@ -272,10 +272,7 @@ func GetArtworks(page int, filtersStr string, sortBy string) []*model.Artwork {
 	}
 
 	if sortBy != "" {
-
 		query += " ORDER BY  ltrim(title) COLLATE NOCASE  " + sortOrder
-	} else {
-		query += "ORDER BY " + sortBy + " " + sortOrder
 	}
 
 	query += " LIMIT 20 OFFSET ?"

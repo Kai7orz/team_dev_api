@@ -53,8 +53,8 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var page int //ページ番号
 	allowedSortColumns := map[string]bool{
-		"title":   true,
-		"culture": true,
+		"title":               true,
+		"artist_display_name": true,
 	}
 	pageStr := r.URL.Query().Get("page")
 	filterStr := r.URL.Query().Get("culture")
