@@ -6,6 +6,20 @@ Web API のチーム開発
 ## サーバーの起動
 
 ```bash
+# git-lfsのインストール(macの場合)
+brew install git-lfs
+
+# git lfsのインストール(ubuntu/linuxの場合)
+sudo apt-get install git-lfs
+```
+
+```bash
+# csvファイルのダウンロード
+git lfs install
+git lfs pull
+```
+
+```bash
 make run
 ```
 
