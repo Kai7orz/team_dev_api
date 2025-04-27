@@ -18,7 +18,6 @@ import (
 func main() {
 	db.InitDB()
 	http.Handle("/swagger/", httpSwagger.WrapHandler)
-	http.HandleFunc("/ping", pingHandler)
 	http.HandleFunc("/artworks/", handler.GetArtworkByIDHandler)
 	http.HandleFunc("/artworks", handler.GetArtworksHandler)
 
@@ -31,19 +30,6 @@ func main() {
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic(err)
-	}
-}
-
-func pingHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, err := w.Write([]byte("pong"))
-	if err != nil {
-		fmt.Println("Error writing response:", err)
 	}
 }
 
