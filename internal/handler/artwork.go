@@ -58,7 +58,7 @@ func GetArtworksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	pageStr := r.URL.Query().Get("page")
 	filterStr := r.URL.Query().Get("culture")
-	sortBy := r.URL.Query().Get("sort")
+	sortBy := r.URL.Query().Get("sortBy")
 
 	//デフォルトの設定
 	if pageStr == "" {
